@@ -19,6 +19,8 @@ void insertEnd(Node**, int);
 void insertAfter(Node*, int);
 void deleteNode(Node**, Node*);
 void displayList(Node*);
+void insertBefore(Node*, int);
+void deleteNodeByValue(Node**, int);
 
 
 int main()
@@ -34,6 +36,28 @@ int main()
     displayList(head);
     cout << "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=" << endl;
     
+    cout << "Inserting number 42 before 69" << endl;
+    Node* nodeToInsertBefore = head->ptrNext->ptrNext;
+    insertBefore(nodeToInsertBefore, 42);
+    displayList(head);
+    
+    cout << "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=" << endl;
+    cout << "Deleting number 1: " << endl;
+    deleteNodeByValue(&head, 1);
+    displayList(head);
+    cout << endl;
+        
+    cout << "Deleting number 0: " << endl;
+    deleteNodeByValue(&head, 0);
+    displayList(head);
+        cout << endl;
+    
+    cout << "Deleting number 3: " << endl;
+    deleteNodeByValue(&head, 3);
+    displayList(head);
+    cout << "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=" << endl;
+    
+    
     
     return 0;
 }
@@ -45,28 +69,6 @@ Node* createNode(int iPayload) {
     temp->ptrPrev = nullptr;
     
     return temp;
-}
-
-void displayList(Node* node) {
-    if (node == nullptr) {
-        cout << "Empty list, man." << endl;
-        return;
-    }
-    
-    if (node->ptrPrev != nullptr) {
-        cout << "Mei ou derradeiro da lista; não é possível realizar displaylist" << endl;
-        return;
-    }
-    
-    cout << "Payload: ";
-    
-    Node* temp = node;
-    while (temp != nullptr) {
-        cout << temp->iPayload << " ";
-        temp = temp->ptrNext;
-    }
-    
-    cout << endl;
 }
 
 void insertFront(Node** head, int iPayload) {
@@ -136,4 +138,84 @@ void deleteNode(Node** head, Node* ptrDelete) {
     
     free(ptrDelete);
 }
+
+void displayList(Node* node) {
+    if (node == nullptr) {
+        cout << "Empty list, man." << endl;
+        return;
+    }
+    
+    if (node->ptrPrev != nullptr) {
+        cout << "Mei ou derradeiro da lista; não é possível realizar displaylist" << endl;
+        return;
+    }
+    
+    cout << "Payload: ";
+    
+    Node* temp = node;
+    while (temp != nullptr) {
+        cout << temp->iPayload << " ";
+        temp = temp->ptrNext;
+    }
+    
+    cout << endl;
+}
+
+
+void insertBefore(Node* ptrLocation, int iPayload) {
+    if (ptrLocation == nullptr) {
+        cout << "Location null" << endl;
+        return;
+    }
+    
+    Node* newNode = createNode(iPayload);
+    
+    // Atualiza os ponteiros
+    newNode->ptrPrev = ptrLocation->ptrPrev;
+    newNode->ptrNext = ptrLocation;
+    
+    if (ptrLocation->ptrPrev != nullptr) 
+        newNode->ptrPrev->ptrNext = newNode;
+    
+    ptrLocation->ptrPrev = newNode;
+}
+
+void deleteNodeByValue(Node** head, int iValue) {
+    // Estrutura vazia
+    if (*head == nullptr) {
+        cout << "Não há como remover" << endl;
+        return;
+    }
+    Node* temp = (*head);
+    // Valor no primeiro elemento
+    if (temp->iPayload == iValue) {
+        (*head) = temp->ptrNext;
+        
+        if (*head != nullptr)
+            (*head)->ptrPrev = nullptr;
+        free(temp);
+        return;
+    }
+    
+    while (temp != nullptr && temp->iPayload != iValue)
+        temp = temp->ptrNext;
+    
+    // Caso o número pedido não está na estrutura
+    if (temp == nullptr) {
+        cout << "Valor dado não está na estrutura" << endl;
+        return;
+    }
+
+    temp->ptrPrev->ptrNext = temp->ptrNext;
+    if (temp->ptrNext != nullptr)
+        temp->ptrNext->ptrPrev = temp->ptrPrev;
+    
+    free(temp);
+}
+
+
+// Exercício 1: Elaborar a função 'void insertBefore(Node*, int)' FEITO!
+// Exercício 2: Elaborar a função 'void deleteNodeByValue(Node**, int)' FEITO!
+// Exercício 3: Elaborar a função 'void searchNodeByValue(Node**, int)'
+
 
