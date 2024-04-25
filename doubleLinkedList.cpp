@@ -6,6 +6,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
+// poggers
 typedef struct Node {
     int iPayload;
     Node* ptrNext;
@@ -19,8 +20,9 @@ void insertEnd(Node**, int);
 void insertAfter(Node*, int);
 void deleteNode(Node**, Node*);
 void displayList(Node*);
-void insertBefore(Node*, int);
+void insertBefore(Node**, Node*, int);
 void deleteNodeByValue(Node**, int);
+Node* searchNodeByValue(Node**, int);
 
 
 int main()
@@ -33,30 +35,38 @@ int main()
     insertEnd(&head, 1);
     insertEnd(&head, 69);
     insertEnd(&head, 3);
+    insertFront(&head, 12);
     displayList(head);
     cout << "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=" << endl;
     
-    cout << "Inserting number 42 before 69" << endl;
-    Node* nodeToInsertBefore = head->ptrNext->ptrNext;
-    insertBefore(nodeToInsertBefore, 42);
+    cout << "Inserting number 42 before 69 and 32 before 12: " << endl;
+    insertBefore(&head, searchNodeByValue(&head, 69), 42); // inserir 42 "antes" dada a posição do 69
+    insertBefore(&head, searchNodeByValue(&head, 12), 32); // inserir 32 "antes" dada a posição do 12
+    displayList(head);
+    cout << "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=" << endl;
+    
+    cout << "Inserting number -12 after 0 and 9 after 3: " << endl;
+    insertAfter(searchNodeByValue(&head, 0), -12); // inserir -12 "após" dada a posição do 0
+    insertAfter(searchNodeByValue(&head, 3), 9); // inserir 9 "após" dada a posição do 3
     displayList(head);
     
     cout << "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=" << endl;
-    cout << "Deleting number 1: " << endl;
-    deleteNodeByValue(&head, 1);
+    cout << "Deleting number 1 (by position): " << endl;
+    deleteNode(&head, searchNodeByValue(&head, 1));
     displayList(head);
     cout << endl;
-        
-    cout << "Deleting number 0: " << endl;
+    
+    cout << "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=" << endl;
+    
+    cout << "Deleting number 0 (by value): " << endl;
     deleteNodeByValue(&head, 0);
     displayList(head);
         cout << endl;
     
-    cout << "Deleting number 3: " << endl;
+    cout << "Deleting number 3 (by value): " << endl;
     deleteNodeByValue(&head, 3);
     displayList(head);
     cout << "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=" << endl;
-    
     
     
     return 0;
@@ -127,7 +137,7 @@ void deleteNode(Node** head, Node* ptrDelete) {
         return;
     }
     
-    if (*head == ptrDelete)
+    if ((*head) == ptrDelete)
         (*head) = ptrDelete->ptrNext;
         
     if (ptrDelete->ptrNext != nullptr)
@@ -162,7 +172,7 @@ void displayList(Node* node) {
 }
 
 
-void insertBefore(Node* ptrLocation, int iPayload) {
+void insertBefore(Node** head, Node* ptrLocation, int iPayload) {
     if (ptrLocation == nullptr) {
         cout << "Location null" << endl;
         return;
@@ -170,14 +180,30 @@ void insertBefore(Node* ptrLocation, int iPayload) {
     
     Node* newNode = createNode(iPayload);
     
-    // Atualiza os ponteiros
     newNode->ptrPrev = ptrLocation->ptrPrev;
     newNode->ptrNext = ptrLocation;
     
-    if (ptrLocation->ptrPrev != nullptr) 
+    if (ptrLocation->ptrPrev != nullptr) {
         newNode->ptrPrev->ptrNext = newNode;
+    } else {
+        *head = newNode;
+    }
     
     ptrLocation->ptrPrev = newNode;
+}
+
+Node* searchNodeByValue(Node** head, int iValue) {
+    Node* current = nullptr;
+    for (current = (*head); current->ptrNext != nullptr; current = current->ptrNext) {
+        if (current->iPayload == iValue) {
+            return current;
+        }
+    }
+    if (current->iPayload == iValue) {
+        return current;
+    }
+    // caso o nó não seja encontrado, retorna nulo
+    return nullptr;
 }
 
 void deleteNodeByValue(Node** head, int iValue) {
@@ -186,36 +212,17 @@ void deleteNodeByValue(Node** head, int iValue) {
         cout << "Não há como remover" << endl;
         return;
     }
-    Node* temp = (*head);
-    // Valor no primeiro elemento
-    if (temp->iPayload == iValue) {
-        (*head) = temp->ptrNext;
+    Node* temp = searchNodeByValue(&(*head), iValue);
+
+    temp->ptrPrev->ptrNext = temp->ptrNext;
+    if (temp->ptrNext != nullptr)
+        temp->ptrNext->ptrPrev = temp->ptrPrev;
         
-        if (*head != nullptr)
-            (*head)->ptrPrev = nullptr;
-        free(temp);
-        return;
-    }
-    
-    while (temp != nullptr && temp->iPayload != iValue)
-        temp = temp->ptrNext;
-    
     // Caso o número pedido não está na estrutura
     if (temp == nullptr) {
         cout << "Valor dado não está na estrutura" << endl;
         return;
     }
-
-    temp->ptrPrev->ptrNext = temp->ptrNext;
-    if (temp->ptrNext != nullptr)
-        temp->ptrNext->ptrPrev = temp->ptrPrev;
     
     free(temp);
 }
-
-
-// Exercício 1: Elaborar a função 'void insertBefore(Node*, int)' FEITO!
-// Exercício 2: Elaborar a função 'void deleteNodeByValue(Node**, int)' FEITO!
-// Exercício 3: Elaborar a função 'void searchNodeByValue(Node**, int)'
-
-
